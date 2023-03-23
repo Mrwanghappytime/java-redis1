@@ -1,16 +1,33 @@
 package com.java.redis.entity;
 
+import com.java.redis.util.Dict;
+
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 
 public class RedisServer {
-    private List<HashMap<String, Object>> db;
 
-    private HashMap<String, RedisCommand> commands;
+    private int dbNum;
+
+    private Dict<RedisObject, Object>[] db;
+
+    private Dict<String, RedisCommand> commands;
+
+    private Dict<String, RedisClient> clients;
 
     private boolean inBgSave;
 
     private boolean inBgAof;
+
+    public RedisServer(Integer dbNum) {
+        this.dbNum = dbNum;
+        this.setDb(new Dict[dbNum]);
+        for (int i = 0; i < dbNum; i++) {
+            this.getDb()[i] = new Dict<>();
+        }
+        clients = new Dict<>();
+    }
 
     public boolean getInBgSave() {
         return inBgSave;
@@ -28,19 +45,45 @@ public class RedisServer {
         this.inBgAof = inBgAof;
     }
 
-    public List<HashMap<String, Object>> getDb() {
+    public Dict<RedisObject, Object>[] getDb() {
         return db;
     }
 
-    public void setDb(List<HashMap<String, Object>> db) {
+    public void setDb(Dict<RedisObject, Object>[] db) {
         this.db = db;
     }
 
-    public HashMap<String, RedisCommand> getCommands() {
+    public Dict<String, RedisCommand> getCommands() {
         return commands;
     }
 
-    public void setCommands(HashMap<String, RedisCommand> commands) {
+    public void setCommands(Dict<String, RedisCommand> commands) {
         this.commands = commands;
     }
+
+    public Dict<String, RedisClient> getClients() {
+        return clients;
+    }
+
+    public void setClients(Dict<String, RedisClient> clients) {
+        this.clients = clients;
+    }
+
+    public boolean isInBgSave() {
+        return inBgSave;
+    }
+
+    public boolean isInBgAof() {
+        return inBgAof;
+    }
+
+    public int getDbNum() {
+        return dbNum;
+    }
+
+    public void setDbNum(int dbNum) {
+        this.dbNum = dbNum;
+    }
+
+
 }

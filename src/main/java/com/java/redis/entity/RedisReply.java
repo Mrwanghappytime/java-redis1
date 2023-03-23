@@ -28,4 +28,12 @@ public class RedisReply {
         this.code = code;
         this.message = message;
     }
+
+    @Override
+    public String toString() {
+        return "RedisReply{" +
+                "code=" + code +
+                ", message='" + message + '\'' +
+                '}';
+    }
 }

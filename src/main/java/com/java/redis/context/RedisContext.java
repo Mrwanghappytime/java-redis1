@@ -1,9 +1,9 @@
 package com.java.redis.context;
 
 import com.java.redis.entity.*;
+import com.java.redis.util.Dict;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class RedisContext {
@@ -20,11 +20,14 @@ public class RedisContext {
 
     public static void initRedisContext(String config, String[] args) {
         Integer dbNum = 16;
-        RedisServer redisServer = new RedisServer();
-        redisServer.setDb(new ArrayList<>());
-        for (int i = 0; i < dbNum; i++) {
-            redisServer.getDb().add(new HashMap<>());
-        }
+        RedisServer redisServer = new RedisServer(dbNum);
+        setRedisServer(redisServer);
+        Dict<String, RedisCommand> commandDict = new Dict<>();
+        for (int i = 0; i < CommandContext.redisCommands.size(); i++) {{
+            RedisCommand redisCommand = CommandContext.redisCommands.get(i);
+            commandDict.set(redisCommand.getCommandName(), redisCommand);
+        }}
+        redisServer.setCommands(commandDict);
     }
 
     public static RedisReply execCommand(RedisMessage message, RedisClient redisClient) {
@@ -32,7 +35,28 @@ public class RedisContext {
         if (Objects.isNull(redisCommand)) {
             return new RedisReply(-1);
         }
-        redisCommand.getCheckCommandParam().checkCommandParam(message);
+        try {
+            redisCommand.getCheckCommandParam().checkCommandParam(message);
+        } catch (Exception e) {
+            return new RedisReply(-1);
+        }
         return redisCommand.getExecCommand().execCommand(message, redisClient);
+    }
+
+    public static void addClient(String hostName, int port) {
+        RedisClient redisClient = new RedisClient();
+        redisClient.setHostname(hostName);
+        redisClient.setPort(port);
+        redisClient.setConnectTime(LocalDateTime.now());
+        redisClient.setDbNum(0);
+        redisServer.getClients().set(hostName + ":" + port, redisClient);
+    }
+
+    public static RedisClient getClient(String hostName, int port) {
+        return redisServer.getClients().get(hostName + ":" + port);
+    }
+
+    public static void removeClient(String hostName, int port) {
+        redisServer.getClients().remove(hostName + ":" + port);
     }
 }
