@@ -18,11 +18,11 @@ public class RedisCommandHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         RedisMessage message = (RedisMessage) msg;
+        System.out.println(message);
         NioSocketChannel channel = (NioSocketChannel) ctx.channel();
         InetSocketAddress address = channel.remoteAddress();
-        RedisClient client = RedisContext.getClient(channel.remoteAddress().getAddress().getHostAddress(), address.getPort());
+        RedisClient client = RedisContext.getClient(channel.remoteAddress().getHostName(), address.getPort());
         RedisReply redisReply = RedisContext.execCommand(message, client);
-        System.out.println(redisReply);
         ctx.writeAndFlush(redisReply);
     }
 }

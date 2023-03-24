@@ -10,7 +10,7 @@ public class RedisServer {
 
     private int dbNum;
 
-    private Dict<RedisObject, Object>[] db;
+    private RedisDb[] db;
 
     private Dict<String, RedisCommand> commands;
 
@@ -22,9 +22,9 @@ public class RedisServer {
 
     public RedisServer(Integer dbNum) {
         this.dbNum = dbNum;
-        this.setDb(new Dict[dbNum]);
+        this.setDb(new RedisDb[dbNum]);
         for (int i = 0; i < dbNum; i++) {
-            this.getDb()[i] = new Dict<>();
+            this.getDb()[i] = new RedisDb();
         }
         clients = new Dict<>();
     }
@@ -45,11 +45,11 @@ public class RedisServer {
         this.inBgAof = inBgAof;
     }
 
-    public Dict<RedisObject, Object>[] getDb() {
+    public RedisDb[] getDb() {
         return db;
     }
 
-    public void setDb(Dict<RedisObject, Object>[] db) {
+    public void setDb(RedisDb[] db) {
         this.db = db;
     }
 

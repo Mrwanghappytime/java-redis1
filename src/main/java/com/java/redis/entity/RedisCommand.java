@@ -2,6 +2,7 @@ package com.java.redis.entity;
 
 import com.java.redis.method.CheckCommandParam;
 import com.java.redis.method.ExecCommand;
+import io.netty.handler.codec.http.HttpResponseEncoder;
 
 public class RedisCommand {
 

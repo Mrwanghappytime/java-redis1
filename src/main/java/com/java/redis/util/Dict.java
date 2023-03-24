@@ -1,6 +1,7 @@
 package com.java.redis.util;
 
 import com.java.redis.context.RedisContext;
+import com.java.redis.entity.RedisObject;
 
 public class Dict<T, K> {
     public static final int INIT_SIZE = 4;
@@ -29,6 +30,12 @@ public class Dict<T, K> {
     public void set(T key, K value) {
         DictEntry tDictEntry = new DictEntry<>(null, key, value);
         boolean inRehashAndRehash = checkInRehashAndRehash();
+        int hash = dictType.hashFunction(key);
+
+        if (checkKeyExistAndUpdate(key, value, inRehashAndRehash, hash)) {
+            return;
+        }
+
         int dictHtIndex = inRehashAndRehash ? 1 : 0;
         int index = dictType.hashFunction(key) & ht[dictHtIndex].sizemask;
         tDictEntry.next = ht[dictHtIndex].entries[index];
@@ -39,31 +46,50 @@ public class Dict<T, K> {
         }
     }
 
+    private boolean checkKeyExistAndUpdate(T key, K value, boolean inRehashAndRehash, int hash) {
+        DictEntry<T, K> search = search(ht[0], key, hash);
+        if (search != null) {
+            search.value = value;
+            return true;
+        }
+        if (inRehashAndRehash) {
+            search = search(ht[1], key, hash);
+            if (search != null) {
+                search.value = value;
+                return true;
+            }
+        }
+        return false;
+    }
+
     public K get(T key) {
         boolean inRehashAndRehash = checkInRehashAndRehash();
         int hash = dictType.hashFunction(key);
 
-        K search = search(ht[0], key, hash);
+        DictEntry<T, K> search = search(ht[0], key, hash);
 
         if (search != null) {
-            return search;
+            return search.value;
         }
 
         if (inRehashAndRehash) {
-            return search(ht[1], key, hash);
+            search = search(ht[1], key, hash);
+            if (search != null) {
+                return search.value;
+            }
         }
 
         return null;
     }
 
-    private K search(DictHt dictHt, T key, int hash) {
+    private DictEntry<T, K> search(DictHt dictHt, T key, int hash) {
         int index = dictHt.sizemask & hash;
 
         DictEntry<T, K> entry = dictHt.entries[index];
 
         while (entry != null) {
             if (entry.key.equals(key)) {
-                return entry.value;
+                return entry;
             }
             entry = entry.next;
         }
@@ -77,8 +103,8 @@ public class Dict<T, K> {
             return;
         }
 
-        if (ht[0].used * LOAD_FACTOR > ht[0].size) {
-            ht[1] = new DictHt<>(ht[0].size);
+        if (ht[0].used > ht[0].size * LOAD_FACTOR) {
+            ht[1] = new DictHt<>(ht[0].size << 1);
             rehashIndex = 0;
         }
     }
@@ -97,11 +123,14 @@ public class Dict<T, K> {
 
     private void rehash() {
         DictEntry<T, K> entry = ht[0].entries[rehashIndex];
+        DictEntry<T, K> next;
         while (entry != null) {
             int index = this.dictType.hashFunction(entry.key) & ht[1].sizemask;
+            next = entry.next;
             entry.next = ht[1].entries[index];
             ht[1].entries[index] = entry;
             ht[1].used++;
+            entry = next;
         }
         rehashIndex++;
         if (rehashIndex == ht[0].size) {
@@ -147,7 +176,23 @@ public class Dict<T, K> {
 
     }
 
-    private static class DictEntry<T, K> {
+    public DictEntry<T, K> getEntry(T key) {
+        boolean inRehashAndRehash = checkInRehashAndRehash();
+        int hash = dictType.hashFunction(key);
+
+        DictEntry<T, K> search = search(ht[0], key, hash);
+
+        if (search != null) {
+            return search;
+        }
+
+        if (inRehashAndRehash) {
+            return search = search(ht[1], key, hash);
+        }
+        return null;
+    }
+
+    public static class DictEntry<T, K> {
         private DictEntry next;
         private T key;
         private K value;
@@ -156,6 +201,14 @@ public class Dict<T, K> {
             this.next = next;
             this.key = key;
             this.value = value;
+        }
+
+        public T getKey() {
+            return key;
+        }
+
+        public K getValue() {
+            return value;
         }
     }
 

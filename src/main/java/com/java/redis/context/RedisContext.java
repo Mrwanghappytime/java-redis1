@@ -1,6 +1,8 @@
 package com.java.redis.context;
 
 import com.java.redis.entity.*;
+import com.java.redis.exception.RedisCheckException;
+import com.java.redis.method.CheckCommandParam;
 import com.java.redis.util.Dict;
 
 import java.time.LocalDateTime;
@@ -36,9 +38,15 @@ public class RedisContext {
             return new RedisReply(-1);
         }
         try {
-            redisCommand.getCheckCommandParam().checkCommandParam(message);
+            CheckCommandParam checkCommandParam = redisCommand.getCheckCommandParam();
+            if (checkCommandParam != null) {
+                checkCommandParam.checkCommandParam(message);
+            }
         } catch (Exception e) {
-            return new RedisReply(-1);
+            if (e instanceof RedisCheckException) {
+                return new RedisReply(1, ((RedisCheckException) e).getMsg());
+            }
+            return new RedisReply(1);
         }
         return redisCommand.getExecCommand().execCommand(message, redisClient);
     }
@@ -58,5 +66,9 @@ public class RedisContext {
 
     public static void removeClient(String hostName, int port) {
         redisServer.getClients().remove(hostName + ":" + port);
+    }
+
+    public static RedisDb getDb(int dbNum) {
+        return redisServer.getDb()[dbNum];
     }
 }
