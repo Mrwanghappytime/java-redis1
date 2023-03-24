@@ -1,10 +1,9 @@
 package com.java.redis;
 
 import com.java.redis.context.RedisContext;
-import com.java.redis.hanler.RedisChildHandler;
+import com.java.redis.handler.RedisChildHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
-import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 

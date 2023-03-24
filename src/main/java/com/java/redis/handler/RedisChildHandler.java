@@ -1,4 +1,4 @@
-package com.java.redis.hanler;
+package com.java.redis.handler;
 
 import com.java.redis.context.RedisContext;
 import com.java.redis.decode.RedisMessageDecode;
@@ -7,7 +7,6 @@ import com.java.redis.util.RedisLogger;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
-import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 public class RedisChildHandler extends ChannelInitializer<NioSocketChannel> {
