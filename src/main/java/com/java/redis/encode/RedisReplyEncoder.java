@@ -1,6 +1,7 @@
 package com.java.redis.encode;
 
 import com.java.redis.constant.RedisReplyCodeEnum;
+import com.java.redis.context.LockContext;
 import com.java.redis.entity.RedisReply;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
@@ -18,5 +19,6 @@ public class RedisReplyEncoder extends MessageToByteEncoder<RedisReply> {
         ByteBuf buffer = channelHandlerContext.alloc().buffer(reply.getBytes(StandardCharsets.UTF_8).length);
         buffer.writeBytes(reply.getBytes(StandardCharsets.UTF_8));
         channelHandlerContext.writeAndFlush(buffer);
+        LockContext.unlock();
     }
 }

@@ -11,11 +11,11 @@ public class GetCheckParam implements CheckCommandParam {
     public void checkCommandParam(RedisMessage redisMessage) {
         List<Object> args = redisMessage.getArgs();
         if (args == null && args.size() == 0) {
-            throw new RedisCheckException("参数不能为空");
+            throw new RedisCheckException("wrong number of arguments for 'get' command");
         }
 
         if (args.size() > 1) {
-            throw new RedisCheckException("不能接受这么多参数");
+            throw new RedisCheckException("wrong number of arguments for 'get' command");
         }
     }
 }

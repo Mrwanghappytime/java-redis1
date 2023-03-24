@@ -1,5 +1,6 @@
 package com.java.redis.decode;
 
+import com.java.redis.context.LockContext;
 import com.java.redis.context.RedisContext;
 import com.java.redis.entity.RedisMessage;
 import com.java.redis.util.RedisLogger;
@@ -17,6 +18,7 @@ public class RedisMessageDecode extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
+        LockContext.lock();
         char c = (char) byteBuf.readByte();
         int paramsCount = readIntValue(byteBuf);
         List<Object> params = new ArrayList<>();

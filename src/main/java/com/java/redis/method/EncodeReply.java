@@ -4,5 +4,5 @@ import com.java.redis.entity.RedisReply;
 
 @FunctionalInterface
 public interface EncodeReply {
-    String encode(RedisReply redisReply);
+    String encode(RedisReply redisReply, RedisReply... redisReplies);
 }
